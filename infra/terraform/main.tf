@@ -1,8 +1,8 @@
 provider "vmworkstation" {
-  endpoint = "https://localhost:8697/api"
+  endpoint = "http://172.20.208.1:8697/api"
   username = "admin"
   password = var.vmws_password
-  https    = true
+  https    = false
   debug    = "NONE"
 }
 
@@ -20,6 +20,7 @@ resource "vmworkstation_virtual_machine" "nodes" {
   denomination = each.key
   description  = "PLW lab: ${each.key}"
   sourceid     = var.base_vm_id
+  path         = "C:\\Users\\Mega Pc\\Documents\\Virtual Machines"
   memory       = each.value.memory
   processors   = each.value.processors
   state        = "on"
