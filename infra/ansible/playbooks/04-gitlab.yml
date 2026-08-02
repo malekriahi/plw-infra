@@ -1,0 +1,38 @@
+- name: Install GitLab CE on PLW infra VM
+  hosts: infra_vm
+  become: true
+  vars:
+    gitlab_url: "http://{{ ansible_host }}"
+  tasks:
+    - name: Install GitLab dependencies
+      apt:
+        name: [curl, openssh-server, ca-certificates, tzdata, perl]
+        state: present
+    - name: Add GitLab repository
+      shell: >
+        curl -sS
+        https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
+        | bash
+      args:
+        creates: /etc/apt/sources.list.d/gitlab_gitlab-ce.list
+    - name: Install GitLab CE
+      apt:
+        name: gitlab-ce
+        state: present
+        update_cache: true
+      environment:
+        EXTERNAL_URL: "{{ gitlab_url }}"
+    - name: Reconfigure GitLab
+      command: gitlab-ctl reconfigure
+      async: 600
+      poll: 30
+    - name: Open port 80
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+    - name: Open registry port 5050
+      ufw:
+        rule: allow
+        port: "5050"
+        proto: tcp

@@ -1,0 +1,25 @@
+- name: Base configuration for all PLW nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt cache and upgrade
+      apt:
+        update_cache: true
+        upgrade: safe
+    - name: Install base tools
+      apt:
+        name: [curl, wget, git, vim, net-tools, ufw]
+        state: present
+    - name: Set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+    - name: Allow SSH through firewall
+      ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+    - name: Enable firewall
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
