@@ -8,6 +8,7 @@
       apt:
         name: [curl, openssh-server, ca-certificates, tzdata, perl]
         state: present
+
     - name: Add GitLab repository
       shell: >
         curl -sS
@@ -15,6 +16,7 @@
         | bash
       args:
         creates: /etc/apt/sources.list.d/gitlab_gitlab-ce.list
+
     - name: Install GitLab CE
       apt:
         name: gitlab-ce
@@ -22,15 +24,29 @@
         update_cache: true
       environment:
         EXTERNAL_URL: "{{ gitlab_url }}"
+
     - name: Reconfigure GitLab
       command: gitlab-ctl reconfigure
       async: 600
       poll: 30
-    - name: Open port 80
+
+    - name: Enable container registry
+      lineinfile:
+        path: /etc/gitlab/gitlab.rb
+        line: "registry_external_url 'http://{{ ansible_host }}:5050'"
+        create: yes
+
+    - name: Reconfigure GitLab again for registry
+      command: gitlab-ctl reconfigure
+      async: 300
+      poll: 30
+
+    - name: Open port 80 in firewall
       ufw:
         rule: allow
         port: "80"
         proto: tcp
+
     - name: Open registry port 5050
       ufw:
         rule: allow

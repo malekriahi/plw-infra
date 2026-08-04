@@ -19,7 +19,7 @@ spec:
       initContainers:
         - name: wait-for-mongodb
           image: busybox:1.35
-          command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-mongodb 27017; do echo waiting; sleep 2; done;']
+          command: ['sh', '-c', 'until nc -vz mongodb 27017; do echo waiting for MongoDB; sleep 2; done;']
       containers:
         - name: planisware-hr
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -28,7 +28,7 @@ spec:
             - containerPort: 5000
           env:
             - name: MONGODB_URI
-              value: "mongodb://admin:{{ .Values.mongodb.password }}@{{ .Release.Name }}-mongodb:27017/planisware-hr?authSource=admin"
+              value: "mongodb://admin:{{ .Values.mongodb.password }}@mongodb:27017/planisware-hr?authSource=admin"
             - name: PORT
               value: "5000"
           resources:
@@ -38,3 +38,15 @@ spec:
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
               memory: {{ .Values.resources.limits.memory }}
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 5
