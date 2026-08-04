@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planisware-hr
+  labels:
+    app: planisware-hr
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: planisware-hr
+  template:
+    metadata:
+      labels:
+        app: planisware-hr
+    spec:
+      imagePullSecrets:
+        - name: plw-registry-secret
+      initContainers:
+        - name: wait-for-mongodb
+          image: busybox:1.35
+          command: ['sh', '-c', 'until nc -z mongodb 27017; do echo waiting; sleep 2; done;']
+      containers:
+        - name: planisware-hr
+          image: 192.168.32.11:5050/root/planisware-hr:v1.0
+          ports:
+            - containerPort: 80
+            - containerPort: 5000
+          env:
+            - name: MONGODB_URI
+              value: "mongodb://admin:${MONGODB_PASSWORD}@mongodb:27017/planisware-hr?authSource=admin"
+            - name: PORT
+              value: "5000"
+          envFrom:
+            - secretRef:
+                name: mongodb-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 5
