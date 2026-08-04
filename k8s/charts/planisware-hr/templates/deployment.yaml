@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-planisware-hr
+  labels:
+    app: {{ .Release.Name }}-planisware-hr
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-planisware-hr
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-planisware-hr
+    spec:
+      imagePullSecrets:
+        - name: plw-registry-secret
+      initContainers:
+        - name: wait-for-mongodb
+          image: busybox:1.35
+          command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-mongodb 27017; do echo waiting; sleep 2; done;']
+      containers:
+        - name: planisware-hr
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 80
+            - containerPort: 5000
+          env:
+            - name: MONGODB_URI
+              value: "mongodb://admin:{{ .Values.mongodb.password }}@{{ .Release.Name }}-mongodb:27017/planisware-hr?authSource=admin"
+            - name: PORT
+              value: "5000"
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}

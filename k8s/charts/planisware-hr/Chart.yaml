@@ -1,0 +1,6 @@
+apiVersion: v2
+name: planisware-hr
+description: Planisware HR - Timecard & Days Off Management (MEAN Stack)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
