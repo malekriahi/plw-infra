@@ -95,3 +95,17 @@ deploy-prod:
   when: manual
   only:
     - main
+
+# ─── Rollback (manual, any branch) ──────────
+rollback-prod:
+  stage: deploy-prod
+  tags: [plw]
+  <<: *ssh_setup
+  script:
+    - ssh devops@192.168.32.10
+        "sudo kubectl rollout undo deployment/plw-prod-planisware-hr -n plw-prod"
+    - ssh devops@192.168.32.10
+        "sudo kubectl rollout status deployment/plw-prod-planisware-hr -n plw-prod"
+  when: manual
+  only:
+    - main
