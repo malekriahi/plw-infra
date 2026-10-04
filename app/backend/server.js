@@ -25,7 +25,7 @@ app.use('/api/interviews', require('./routes/interviewRoutes'));
 app.use('/api/appraisals', require('./routes/appraisalRoutes'));
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', app: 'Planisware HR', timestamp: new Date() });
+  res.json({ status: 'ok', version: 'v2', app: 'Planisware HR', timestamp: new Date() });
 });
 
 app.get('/api/dashboard/stats', async (req, res) => {
