@@ -39,7 +39,8 @@ build:
   tags: [plw]
   image: docker:24
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      command: ["--insecure-registry=192.168.32.11:5050"]
   script:
     - docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG ./app
     - docker tag $REGISTRY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$IMAGE_NAME:latest
@@ -52,7 +53,8 @@ push:
   tags: [plw]
   image: docker:24
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      command: ["--insecure-registry=192.168.32.11:5050"]
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $REGISTRY
         -u $CI_REGISTRY_USER --password-stdin
