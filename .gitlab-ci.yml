@@ -3,12 +3,25 @@ stages:
   - build
   - push
   - deploy-dev
+  - deploy-staging
   - deploy-prod
 
 variables:
   REGISTRY: "192.168.32.11:5050"
   IMAGE_NAME: "root/planisware-hr"
   IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+# ─── Template SSH réutilisable ───────────────
+.ssh_setup: &ssh_setup
+  before_script:
+    - 'which ssh-agent || apk add --no-cache openssh-client'
+    - eval $(ssh-agent -s)
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H 192.168.32.10 >> ~/.ssh/known_hosts
 
 # ─── Stage 1: test ───────────────────────────
 test:
@@ -17,18 +30,16 @@ test:
   tags: [plw]
   script:
     - node --check app/backend/server.js
-    - echo "✅ Planisware-HR syntax check passed"
+    - cd app/frontend && npm ci && npm run build
+    - echo "Planisware HR tests passed"
 
 # ─── Stage 2: build ──────────────────────────
 build:
   stage: build
+  tags: [plw]
   image: docker:24
   services:
     - docker:24-dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_HOST: tcp://docker:2375
-  tags: [plw]
   script:
     - docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG ./app
     - docker tag $REGISTRY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$IMAGE_NAME:latest
@@ -38,15 +49,13 @@ build:
 # ─── Stage 3: push ───────────────────────────
 push:
   stage: push
+  tags: [plw]
   image: docker:24
   services:
     - docker:24-dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_HOST: tcp://docker:2375
-  tags: [plw]
   script:
-    - docker login $REGISTRY -u root -p $GITLAB_ROOT_PASSWORD
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $REGISTRY
+        -u $CI_REGISTRY_USER --password-stdin
     - docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
     - docker push $REGISTRY/$IMAGE_NAME:latest
   only:
@@ -55,60 +64,43 @@ push:
 # ─── Stage 4: deploy to dev ──────────────────
 deploy-dev:
   stage: deploy-dev
-  image: alpine:3.18
   tags: [plw]
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | ssh-add -
-    - mkdir -p ~/.ssh
-    - ssh-keyscan -H 192.168.32.10 >> ~/.ssh/known_hosts
+  <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
         "sudo kubectl set image deployment/plw-dev-planisware-hr
-        planisware-hr=192.168.32.11:5050/root/planisware-hr:$CI_COMMIT_SHORT_SHA
-        -n plw-dev"
+        planisware-hr=$REGISTRY/$IMAGE_NAME:$IMAGE_TAG -n plw-dev"
     - ssh devops@192.168.32.10
         "sudo kubectl rollout status deployment/plw-dev-planisware-hr -n plw-dev"
   only:
     - main
 
-# ─── Stage 5: deploy to prod (manual gate) ───
-deploy-prod:
-  stage: deploy-prod
-  image: alpine:3.18
+# ─── Stage 5: deploy to staging (manual gate) ───
+deploy-staging:
+  stage: deploy-staging
   tags: [plw]
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | ssh-add -
-    - mkdir -p ~/.ssh
-    - ssh-keyscan -H 192.168.32.10 >> ~/.ssh/known_hosts
+  <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
-        "sudo kubectl set image deployment/plw-prod-planisware-hr
-        planisware-hr=192.168.32.11:5050/root/planisware-hr:$CI_COMMIT_SHORT_SHA
-        -n plw-prod"
+        "sudo kubectl set image deployment/plw-staging-planisware-hr
+        planisware-hr=$REGISTRY/$IMAGE_NAME:$IMAGE_TAG -n plw-staging"
     - ssh devops@192.168.32.10
-        "sudo kubectl rollout status deployment/plw-prod-planisware-hr -n plw-prod"
+        "sudo kubectl rollout status deployment/plw-staging-planisware-hr -n plw-staging"
   when: manual
   only:
     - main
 
-# ─── Rollback prod (manual) ──────────────────
-rollback-prod:
+# ─── Stage 6: deploy to prod (manual gate) ───
+deploy-prod:
   stage: deploy-prod
-  image: alpine:3.18
   tags: [plw]
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | ssh-add -
-    - mkdir -p ~/.ssh
-    - ssh-keyscan -H 192.168.32.10 >> ~/.ssh/known_hosts
+  <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
-        "sudo kubectl rollout undo deployment/plw-prod-planisware-hr -n plw-prod"
+        "sudo kubectl set image deployment/plw-prod-planisware-hr
+        planisware-hr=$REGISTRY/$IMAGE_NAME:$IMAGE_TAG -n plw-prod"
+    - ssh devops@192.168.32.10
+        "sudo kubectl rollout status deployment/plw-prod-planisware-hr -n plw-prod"
   when: manual
   only:
     - main
