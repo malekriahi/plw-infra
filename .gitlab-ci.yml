@@ -1,7 +1,6 @@
 stages:
   - test
-  - build
-  - push
+  - build-push
   - deploy-dev
   - deploy-staging
   - deploy-prod
@@ -33,9 +32,9 @@ test:
     - cd app/frontend && npm ci && npm run build
     - echo "Planisware HR tests passed"
 
-# ─── Stage 2: build ──────────────────────────
-build:
-  stage: build
+# ─── Stage 2: build + push (même job) ────────
+build-push:
+  stage: build-push
   tags: [plw]
   image: docker:24
   services:
@@ -44,18 +43,6 @@ build:
   script:
     - docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG ./app
     - docker tag $REGISTRY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$IMAGE_NAME:latest
-  only:
-    - main
-
-# ─── Stage 3: push ───────────────────────────
-push:
-  stage: push
-  tags: [plw]
-  image: docker:24
-  services:
-    - name: docker:24-dind
-      command: ["--insecure-registry=192.168.32.11:5050"]
-  script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $REGISTRY
         -u $CI_REGISTRY_USER --password-stdin
     - docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
@@ -63,7 +50,7 @@ push:
   only:
     - main
 
-# ─── Stage 4: deploy to dev ──────────────────
+# ─── Stage 3: deploy to dev ──────────────────
 deploy-dev:
   stage: deploy-dev
   tags: [plw]
@@ -77,7 +64,7 @@ deploy-dev:
   only:
     - main
 
-# ─── Stage 5: deploy to staging (manual gate) ───
+# ─── Stage 4: deploy to staging (manual gate) ───
 deploy-staging:
   stage: deploy-staging
   tags: [plw]
@@ -92,7 +79,7 @@ deploy-staging:
   only:
     - main
 
-# ─── Stage 6: deploy to prod (manual gate) ───
+# ─── Stage 5: deploy to prod (manual gate) ───
 deploy-prod:
   stage: deploy-prod
   tags: [plw]
