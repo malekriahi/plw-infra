@@ -17,9 +17,11 @@ variables:
   before_script:
     - 'which ssh-agent || apk add --no-cache openssh-client'
     - eval $(ssh-agent -s)
-    - ssh-add "$SSH_PRIVATE_KEY"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    - cp "$SSH_PRIVATE_KEY" /tmp/ssh_key
+    - chmod 600 /tmp/ssh_key
+    - ssh-add /tmp/ssh_key
     - ssh-keyscan -H 192.168.32.10 >> ~/.ssh/known_hosts
 
 # ─── Stage 1: test ───────────────────────────
