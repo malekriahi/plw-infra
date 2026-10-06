@@ -1,0 +1,52 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: plw-alerts
+  namespace: plw-monitoring
+  labels:
+    release: plw-monitoring
+spec:
+  groups:
+    - name: plw.rules
+      rules:
+
+        - alert: PLWPodCrashLooping
+          expr: |
+            rate(kube_pod_container_status_restarts_total{
+              namespace=~"plw-.*"}[5m]) * 300 > 3
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PLW pod {{ $labels.pod }} is crash-looping"
+            description: "Pod restarted more than 3 times in 5 minutes"
+
+        - alert: PLWNodeNotReady
+          expr: |
+            kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PLW node {{ $labels.node }} is NOT Ready"
+
+        - alert: PLWHighCPU
+          expr: |
+            sum(rate(container_cpu_usage_seconds_total{
+              namespace=~"plw-.*"}[5m])) by (namespace) > 0.8
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High CPU in namespace {{ $labels.namespace }}"
+            description: "CPU usage above 80% for 3 minutes"
+
+        - alert: PLWPodNotRunning
+          expr: |
+            kube_pod_status_phase{namespace=~"plw-.*",
+              phase!="Running", phase!="Succeeded"} == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PLW pod {{ $labels.pod }} is not running"
