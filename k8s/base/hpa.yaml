@@ -6,7 +6,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: planisware-hr
+    name: plw-prod-planisware-hr
   minReplicas: 2
   maxReplicas: 6
   metrics:
