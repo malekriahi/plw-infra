@@ -22,6 +22,7 @@ app.use('/api/timecards', require('./routes/timecardRoutes'));
 app.use('/api/days-off', require('./routes/daysOffRoutes'));
 app.use('/api/wfh', require('./routes/wfhRoutes'));
 app.use('/api/interviews', require('./routes/interviewRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/appraisals', require('./routes/appraisalRoutes'));
 
 app.get('/api/health', (req, res) => {

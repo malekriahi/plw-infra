@@ -3,7 +3,7 @@ import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
-  template: ``,
+  template: `<router-outlet></router-outlet>`,
   styles: []
 })
 export class AppComponent {
