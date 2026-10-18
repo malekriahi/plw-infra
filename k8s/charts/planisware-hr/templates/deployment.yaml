@@ -48,5 +48,5 @@ spec:
             httpGet:
               path: /api/health
               port: 5000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 60
             periodSeconds: 5
