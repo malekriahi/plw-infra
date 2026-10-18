@@ -10,8 +10,8 @@ const EmployeeSchema = new mongoose.Schema({
   position: { type: String, required: true },
   managerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
   hireDate: { type: Date, default: Date.now },
-  annualLeaveDays: { type: Number, default: 25 },
-  remainingLeaveDays: { type: Number, default: 25 },
+  annualLeaveDays: { type: Number, default: 30 },      // 2.5 days/month × 12
+  remainingLeaveDays: { type: Number, default: 30 },   // reset/accrued monthly
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });

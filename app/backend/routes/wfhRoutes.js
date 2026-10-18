@@ -6,6 +6,7 @@ router.post('/', wfhController.request);
 router.put('/:id/approve', wfhController.approve);
 router.put('/:id/reject', wfhController.reject);
 router.get('/', wfhController.getAll);
+router.get('/pending', wfhController.getPending);
 router.get('/today', wfhController.getToday);
 
 module.exports = router;

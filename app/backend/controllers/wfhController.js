@@ -30,6 +30,12 @@ exports.getAll = async (req, res) => {
   try { res.json(await WFHPlan.find().populate('employeeId', 'firstName lastName')); } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+exports.getPending = async (req, res) => {
+  try {
+    res.json(await WFHPlan.find({ status: 'pending' }).populate('employeeId', 'firstName lastName department'));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 exports.getToday = async (req, res) => {
   try {
     const today = new Date(); today.setHours(0, 0, 0, 0);
