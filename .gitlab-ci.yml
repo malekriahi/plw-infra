@@ -59,7 +59,7 @@ deploy-dev:
   <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
-        "sudo helm upgrade --install plw-dev
+        "sudo helm --kubeconfig /home/devops/.kube/config upgrade --install plw-dev
         /opt/plw-charts/planisware-hr
         -n plw-dev --create-namespace
         -f /opt/plw-charts/planisware-hr/values-dev.yaml
@@ -76,7 +76,7 @@ deploy-staging:
   <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
-        "sudo helm upgrade --install plw-staging
+        "sudo helm --kubeconfig /home/devops/.kube/config upgrade --install plw-staging
         /opt/plw-charts/planisware-hr
         -n plw-staging --create-namespace
         -f /opt/plw-charts/planisware-hr/values-staging.yaml
@@ -94,7 +94,7 @@ deploy-prod:
   <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
-        "sudo helm upgrade --install plw-prod
+        "sudo helm --kubeconfig /home/devops/.kube/config upgrade --install plw-prod
         /opt/plw-charts/planisware-hr
         -n plw-prod --create-namespace
         -f /opt/plw-charts/planisware-hr/values-prod.yaml
@@ -112,9 +112,9 @@ rollback-prod:
   <<: *ssh_setup
   script:
     - ssh devops@192.168.32.10
-        "sudo kubectl rollout undo deployment/plw-prod-planisware-hr -n plw-prod"
+        "sudo kubectl --kubeconfig /home/devops/.kube/config rollout undo deployment/plw-prod-planisware-hr -n plw-prod"
     - ssh devops@192.168.32.10
-        "sudo kubectl rollout status deployment/plw-prod-planisware-hr -n plw-prod"
+        "sudo kubectl --kubeconfig /home/devops/.kube/config rollout status deployment/plw-prod-planisware-hr -n plw-prod"
   when: manual
   only:
     - main
