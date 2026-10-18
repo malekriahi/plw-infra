@@ -27,38 +27,8 @@ function addDays(d: Date, n: number): Date {
 @Component({
   selector: 'app-timecard',   // keep selector so navbar link still works
   template: `
-<div style="display:flex;min-height:100vh;background:#f4f6fb;font-family:Inter,system-ui,sans-serif;">
-
-  <!-- Sidebar -->
-  <div style="width:220px;background:#1a1a2e;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;">
-    <div style="padding:24px 20px 20px;border-bottom:1px solid #2d2d4e;">
-      <div style="font-size:18px;font-weight:700;color:#fff;">🌸 PLW HR</div>
-      <div style="font-size:11px;color:#7b7ba8;margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;">
-        {{ user?.role === 'admin' ? 'Admin RH' : 'Espace Employé' }}
-      </div>
-    </div>
-    <nav style="padding:12px 0;flex:1;">
-      <a routerLink="/dashboard"  style="display:block;padding:10px 20px;text-decoration:none;"><span style="font-size:13px;color:#9090b8;">📊 Tableau de bord</span></a>
-      <a routerLink="/days-off"   style="display:block;padding:10px 20px;text-decoration:none;"><span style="font-size:13px;color:#9090b8;">📅 Congés</span></a>
-      <a routerLink="/wfh"        style="display:block;padding:10px 20px;text-decoration:none;"><span style="font-size:13px;color:#9090b8;">🏠 Télétravail</span></a>
-      <a routerLink="/timecard"   style="display:block;padding:10px 20px;background:#3b82f618;border-left:3px solid #3b82f6;text-decoration:none;">
-        <span style="font-size:13px;font-weight:600;color:#60a5fa;">⏱️ Feuille de temps</span>
-      </a>
-      <a routerLink="/appraisals" style="display:block;padding:10px 20px;text-decoration:none;"><span style="font-size:13px;color:#9090b8;">⭐ Évaluation</span></a>
-    </nav>
-    <div style="padding:16px 20px;border-top:1px solid #2d2d4e;display:flex;align-items:center;gap:10px;">
-      <div style="width:32px;height:32px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;">
-        {{ (user?.name || 'U')[0].toUpperCase() }}
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:600;color:#fff;">{{ user?.name }}</div>
-        <div style="font-size:10px;color:#7b7ba8;">{{ user?.email }}</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main -->
-  <div style="flex:1;padding:28px;overflow-y:auto;">
+<div style="padding:28px;background:#f4f6fb;min-height:100vh;font-family:Inter,system-ui,sans-serif;">
+  <div>
 
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">

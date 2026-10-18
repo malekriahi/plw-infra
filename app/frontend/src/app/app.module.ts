@@ -14,6 +14,9 @@ import { WFHComponent } from './components/wfh/wfh.component';
 import { InterviewsComponent } from './components/interviews/interviews.component';
 import { AppraisalsComponent } from './components/appraisals/appraisals.component';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
+import { SidebarComponent } from './components/shared/sidebar/sidebar.component';
+import { EmployeesComponent } from './components/employees/employees.component';
+import { RequestsComponent } from './components/requests/requests.component';
 
 import { AuthGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
@@ -22,7 +25,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
   declarations: [
     AppComponent, LoginComponent, DashboardComponent, TimecardComponent,
     DaysOffComponent, WFHComponent, InterviewsComponent, AppraisalsComponent,
-    NavbarComponent
+    NavbarComponent, SidebarComponent, EmployeesComponent, RequestsComponent
   ],
   imports: [
     BrowserModule, CommonModule, AppRoutingModule, FormsModule, ReactiveFormsModule,
