@@ -1,7 +1,10 @@
-replicaCount: 3
+replicaCount: 2
+image:
+  repository: 192.168.32.11:5050/root/planisware-hr
+  tag: "latest"
 resources:
   requests: { cpu: "200m", memory: "256Mi" }
   limits: { cpu: "500m", memory: "512Mi" }
 hpa:
-  minReplicas: 3
+  minReplicas: 2
   maxReplicas: 8
