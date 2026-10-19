@@ -65,7 +65,7 @@ deploy-dev:
         -f /opt/plw-charts/planisware-hr/values-dev.yaml
         --set image.tag=$IMAGE_TAG
         --set image.repository=$REGISTRY/$IMAGE_NAME
-        --wait --timeout=300s"
+        "
   only:
     - main
 
