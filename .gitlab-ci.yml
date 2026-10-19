@@ -82,7 +82,7 @@ deploy-staging:
         -f /opt/plw-charts/planisware-hr/values-staging.yaml
         --set image.tag=$IMAGE_TAG
         --set image.repository=$REGISTRY/$IMAGE_NAME
-        --wait --timeout=300s"
+       "
   when: manual
   only:
     - main
@@ -100,7 +100,7 @@ deploy-prod:
         -f /opt/plw-charts/planisware-hr/values-prod.yaml
         --set image.tag=$IMAGE_TAG
         --set image.repository=$REGISTRY/$IMAGE_NAME
-        --wait --timeout=300s"
+       "
   when: manual
   only:
     - main
