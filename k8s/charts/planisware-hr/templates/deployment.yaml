@@ -16,10 +16,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: plw-registry-secret
-      initContainers:
-        - name: wait-for-mongodb
-          image: busybox:1.35
-          command: ['sh', '-c', 'until nc -vz mongodb 27017; do echo waiting for MongoDB; sleep 2; done;']
       containers:
         - name: planisware-hr
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
